@@ -1,43 +1,89 @@
-import numpy as np
 import cv2
 
+import asyncio
+import websockets
 
-#classifier for banana
-banacascade=cv2.CascadeClassifier('banana_classifier.xml')
+import json
 
-#enable webcam for imagedetection
-#'0' default for internal webcam
-liveImg = cv2.VideoCapture(0)
+async def detect(websocket):
+    #classifier for banana
+    banacascade=cv2.CascadeClassifier('classifier/banana_classifier.xml')
 
-#set Window size
-liveImg.set(3, 640)
-liveImg.set(4, 480)
+    #classifier for orange
+    orangecascade=cv2.CascadeClassifier('classifier/orange_classifier.xml')
 
-while True :
+    #classifier for apple
+    applecascade=cv2.CascadeClassifier('classifier/apple_classifier.xml')
 
-    #capture the video frame by frame
-    success, img = liveImg.read()
+    #enable webcam for imagedetection
+    #'0' default for internal webcam
+    liveImg = cv2.VideoCapture(0)
 
-    #image to grayscale
-    grayScale=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    fruit = None
 
-    banana=banacascade.detectMultiScale(grayScale,scaleFactor=1.3,minNeighbors=5,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+    #set Window size
+    liveImg.set(3, 640)
+    liveImg.set(4, 480)
 
-    for(x,y,w,h) in banana:
-        #draw box around object, colorvalues in BGR
-        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,255),3)
-        #name frame, colorvalues in BGR
-        cv2.putText(img,'Banana',(x-10,y-10),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,255))
+    while True :
+        #capture the video frame by frame        
+        success, img = liveImg.read()
 
-    #display the resulting frame
-    cv2.imshow('Fruit Detection', img)
+        #image to grayscale
+        grayScale=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
-    #the 'q' button is set as the
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        banana=banacascade.detectMultiScale(grayScale,scaleFactor=2,minNeighbors=8,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+        orange=orangecascade.detectMultiScale(grayScale,scaleFactor=2,minNeighbors=8,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+        apple=applecascade.detectMultiScale(grayScale,scaleFactor=1.2,minNeighbors=8,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
 
-#after the loop release the cap object
-liveImg.release()
+        for(x,y,w,h) in banana:
+            #draw box around object, colorvalues in BGR
+            #cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,255),3)
+            #name frame, colorvalues in BGR
+            cv2.putText(img,'Banana',(x-10,y-10),cv2.FONT_HERSHEY_DUPLEX,1,(0,255,255))
+            fruit = 'banana'
 
-#destroy all the windows
-cv2.destroyAllWindows()
+        for(x,y,w,h) in orange:
+            #draw box around object, colorvalues in BGR
+            #cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,255),3)
+            #name frame, colorvalues in BGR
+            cv2.putText(img,'Orange',(x-10,y-10),cv2.FONT_HERSHEY_DUPLEX,1,(0,165,255))
+            fruit = 'orange'
+
+        for(x,y,w,h) in apple:
+            #draw box around object, colorvalues in BGR
+            #cv2.rectangle(img,(x,y),(x+w,y+h),(50,205,50),3)                
+            #name frame, colorvalues in BGR
+            cv2.putText(img,'Apple',(x-10,y-10),cv2.FONT_HERSHEY_DUPLEX,1,(50,205,50)) 
+            fruit = 'apple'
+
+        
+
+        if fruit is not None:
+            event = {
+                "type": "detected",
+                "fruit": fruit,
+            }
+            await websocket.send(json.dumps(event))           
+
+        #display the resulting frame
+        cv2.imshow('Fruit Detection', img)
+
+
+        #the 'q' button is set as the
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    #after the loop release the cap object
+    liveImg.release()
+
+    #destroy all the windows
+    cv2.destroyAllWindows()
+
+async def main():
+    async with websockets.serve(detect, "127.0.0.1", 8001):
+        await asyncio.Future()  # run forever
+
+
+if __name__ == "__main__":
+    asyncio.run(main())   
