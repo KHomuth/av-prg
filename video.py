@@ -25,6 +25,8 @@ async def detect(websocket):
     liveImg.set(3, 640)
     liveImg.set(4, 480)
 
+    isDetected = False
+
     while True :
         #capture the video frame by frame        
         success, img = liveImg.read()
@@ -32,9 +34,9 @@ async def detect(websocket):
         #image to grayscale
         grayScale=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
-        banana=banacascade.detectMultiScale(grayScale,scaleFactor=2,minNeighbors=8,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
-        orange=orangecascade.detectMultiScale(grayScale,scaleFactor=2,minNeighbors=8,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
-        apple=applecascade.detectMultiScale(grayScale,scaleFactor=1.2,minNeighbors=8,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+        banana=banacascade.detectMultiScale(grayScale,scaleFactor=1.4,minNeighbors=5,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+        orange=orangecascade.detectMultiScale(grayScale,scaleFactor=1.2,minNeighbors=10,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+        apple=applecascade.detectMultiScale(grayScale,scaleFactor=1.6,minNeighbors=10,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
 
         for(x,y,w,h) in banana:
             #draw box around object, colorvalues in BGR
@@ -42,6 +44,7 @@ async def detect(websocket):
             #name frame, colorvalues in BGR
             cv2.putText(img,'Banana',(x-10,y-10),cv2.FONT_HERSHEY_DUPLEX,1,(0,255,255))
             fruit = 'banana'
+            isDetected = True
 
         for(x,y,w,h) in orange:
             #draw box around object, colorvalues in BGR
@@ -49,6 +52,7 @@ async def detect(websocket):
             #name frame, colorvalues in BGR
             cv2.putText(img,'Orange',(x-10,y-10),cv2.FONT_HERSHEY_DUPLEX,1,(0,165,255))
             fruit = 'orange'
+            isDetected = True
 
         for(x,y,w,h) in apple:
             #draw box around object, colorvalues in BGR
@@ -56,15 +60,18 @@ async def detect(websocket):
             #name frame, colorvalues in BGR
             cv2.putText(img,'Apple',(x-10,y-10),cv2.FONT_HERSHEY_DUPLEX,1,(50,205,50)) 
             fruit = 'apple'
+            isDetected = True
 
         
 
-        if fruit is not None:
+        if fruit is not None and isDetected:
             event = {
                 "type": "detected",
                 "fruit": fruit,
             }
-            await websocket.send(json.dumps(event))           
+            await websocket.send(json.dumps(event)) 
+            isDetected = False
+            fruit = None              
 
         #display the resulting frame
         cv2.imshow('Fruit Detection', img)
@@ -81,7 +88,7 @@ async def detect(websocket):
     cv2.destroyAllWindows()
 
 async def main():
-    async with websockets.serve(detect, "127.0.0.1", 8001):
+    async with websockets.serve(detect, "", 8001):
         await asyncio.Future()  # run forever
 
 

@@ -7,8 +7,6 @@
     </head>
     <body>
         <div id="mainContainer">
-            <button id="playStopButton">Play</button>
-
             <div id="gainContainer" class="container">
                 <p>
                     Gain: <span id="gainOutput">1.0 dB</span>
@@ -23,21 +21,14 @@
                 <input type="range" min="0" max="100" value="50" class="slider" id="panningSlider">
             </div>
 
-            <div id="distortionContainer" class="container">
-                <p>
-                    Distortion: <span id="distortionOutput">0</span>
-                </p>
-                <input type="range" min="0" max="100" value="0" class="slider" id="distortionSlider">
-            </div>
-
             <div class="flexContainer">
                 <div id="compressorContainer"> 
                     <h3>Compressor</h2>
                     <div id="thresholdContainer" class="container">
                         <p>
-                            Threshold: <span id="thresholdOutput">-24 dB</span>
+                            Threshold: <span id="thresholdOutput">0 dB</span>
                         </p>
-                        <input type="range" min="0" max="100" value="76" class="compressorSlider" id="thresholdSlider">
+                        <input type="range" min="0" max="100" value="100" class="compressorSlider" id="thresholdSlider">
                     </div>
         
                     <div id="ratioContainer" class="container">
@@ -65,7 +56,7 @@
                         <p>
                             Release: <span id="releaseOutput">0.25 sec</span>
                         </p>
-                        <input type="range" min="0" max="1000" value="10" class="compressorSlider" id="releaseSlider">
+                        <input type="range" min="0" max="1000" value="250" class="compressorSlider" id="releaseSlider">
                     </div>
                 </div>
     
@@ -73,9 +64,9 @@
                     <h3>Filter</h3>
                     <div id="frequencyContainer" class="container">
                         <p>
-                            Frequency: <span id="frequencyOutput">1000 Hz</span>
+                            Frequency: <span id="frequencyOutput">20000 Hz</span>
                         </p>
-                        <input type="range" min="1000" max="20000" value="1000" class="filterSlider" id="frequencySlider">
+                        <input type="range" min="1000" max="20000" value="20000" class="filterSlider" id="frequencySlider">
                     </div>
         
                     <div id="detuneContainer" class="container">
@@ -90,13 +81,6 @@
                             Quality: <span id="qOutput">0</span>
                         </p>
                         <input type="range" min="0" max="100" value="0" class="filterSlider" id="qSlider">
-                    </div>
-        
-                    <div id="gainContainer" class="container">
-                        <p>
-                            Gain: <span id="gainOutput">0 dB</span>
-                        </p>
-                        <input type="range" min="-40" max="40" value="0" class="filterSlider" id="gainSlider">
                     </div>
         
                     <div id="typeContainer" class="container">
@@ -114,6 +98,8 @@
                     </div>
                 </div>
             </div>
+
+            <button id="playStopButton">Play</button>
         </div>
     </body>
 </html>
