@@ -34,9 +34,9 @@ async def detect(websocket):
         #image to grayscale
         grayScale=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
-        banana=banacascade.detectMultiScale(grayScale,scaleFactor=1.4,minNeighbors=5,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
-        orange=orangecascade.detectMultiScale(grayScale,scaleFactor=1.2,minNeighbors=10,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
-        apple=applecascade.detectMultiScale(grayScale,scaleFactor=1.6,minNeighbors=10,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+        banana=banacascade.detectMultiScale(grayScale,scaleFactor=2,minNeighbors=5,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+        orange=orangecascade.detectMultiScale(grayScale,scaleFactor=2,minNeighbors=5,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+        apple=applecascade.detectMultiScale(grayScale,scaleFactor=2,minNeighbors=5,minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
 
         for(x,y,w,h) in banana:
             #draw box around object, colorvalues in BGR
